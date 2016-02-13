@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<meta charset=utf-8 />
+<title>Polylines</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<script src='https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.js'></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src='https://d3js.org/d3.v2.min.js?2.9.3'></script>
+<script src="https://s3.amazonaws.com/cooplooped.com/polyline.js"></script>
+<link href='https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.css' rel='stylesheet' />
+<style>
+  body { margin:0; padding:0; }
+  #map { position:absolute; top:0; bottom:0; width:100%; }
+.menu-ui {
+  background:#fff;
+  position:absolute;
+  top:10px;right:10px;
+  z-index:1;
+  border-radius:3px;
+  width:120px;
+  border:1px solid rgba(0,0,0,0.4);
+  }
+  .menu-ui a {
+    font-size:13px;
+    color:#404040;
+    display:block;
+    margin:0;padding:0;
+    padding:10px;
+    text-decoration:none;
+    border-bottom:1px solid rgba(0,0,0,0.25);
+    text-align:center;
+    }
+    .menu-ui a:first-child {
+      border-radius:3px 3px 0 0;
+      }
+    .menu-ui a:last-child {
+      border:none;
+      border-radius:0 0 3px 3px;
+      }
+    .menu-ui a:hover {
+      background:#f8f8f8;
+      color:#404040;
+      }
+    .menu-ui a.active {
+      color:#FFF;
+      }
+      .menu-ui a.active:hover {
+        background:#3074a4;
+        }
+
+.custom .leaflet-popup-tip,
+.terrible .leaflet-popup-tip {
+    position: absolute;
+    float: left;
+}
+
+.terrible .leaflet-popup-content-wrapper {
+    background: #CC402A;
+    color: white;
+
+}
+.bad .leaflet-popup-content-wrapper {
+    background: #F47527;
+    color: white;
+
+}
+.fair .leaflet-popup-content-wrapper {
+    background: #EDDD31;
+    color: white;
+}
+.average .leaflet-popup-content-wrapper {
+    background: #7FDBFF;
+    color: white;
+
+}
+.good .leaflet-popup-content-wrapper {
+    background: #378E6E;
+    color: white;
+
+}
+.great .leaflet-popup-content-wrapper {
+    background: #4B9E38;
+    color: white;
+
+}
+</style>
+</head>
+<body>
+<nav id='menu-ui' class='menu-ui'></nav>
+<div id='map'></div>
+<script>
+
+d3.csv('https://dl.dropboxusercontent.com/u/108708544/automatic.csv', function(data) {
+    var routeTerrible = [];
+    var routeBad = [];
+    var routeFair = [];
+    var routeAverage = [];
+    var routeGood = [];
+    var routeGreat = [];
+    var maxDistance = 10;
+
+    var terribleMPG_options = {
+    color: '#CC402A',
+    opacity: .3,
+    weight: 5
+    };
+    var badMPG_options = {
+    color: '#F47527',
+    opacity: .3,
+    weight: 5
+    };
+    var fairMPG_options = {
+    color: '#EDDD31',
+    opacity: .3,
+    weight: 5
+    };
+    var averageMPG_options = {
+    color: '#7FDBFF',
+    opacity: .3,
+    weight: 5
+    };
+    var goodMPG_options = {
+    color: '#378E6E',
+    opacity: .3,
+    weight: 5
+    };
+    var greatMPG_options = {
+    color: '#4B9E38',
+    opacity: .3,
+    weight: 5
+    };
+    var greatMPG_options = {
+    color: '#4B9E38',
+    opacity: .3,
+    weight: 5
+    };
+    var hover_options = {
+    id : "hover",
+    color: 'white',
+    opacity: 1
+    };
+
+
+
+    data.forEach(function(d){
+        if (d.Distance < maxDistance && d.AverageMPG < 10) {
+               routeTerrible.push({"name": "Terrible MPG", "points": [polyline.decode(d.Path)], "time": d.StartTime, "brakes": d.HardBrakes, "accels": d.HardAccelerations, "distance": d.Distance,"duration": d.Duration, "style": "terrible"})};
+        if (d.Distance < maxDistance && d.AverageMPG >= 10 && d.AverageMPG < 13) {
+     routeBad.push({"name": "Bad MPG", "points": [polyline.decode(d.Path)], "time": d.StartTime, "brakes": d.HardBrakes, "accels": d.HardAccelerations, "distance": d.Distance,"duration": d.Duration, "style" : "bad"})};
+        if (d.Distance < maxDistance && d.AverageMPG >= 13 && d.AverageMPG < 15) {
+     routeFair.push({"name": "Fair MPG", "points": [polyline.decode(d.Path)], "time": d.StartTime, "brakes": d.HardBrakes, "accels": d.HardAccelerations, "distance": d.Distance,"duration": d.Duration, "style": "fair"})};
+        if (d.Distance < maxDistance && d.AverageMPG >= 15 && d.AverageMPG < 20) {
+     routeAverage.push({"name": "Average MPG", "points": [polyline.decode(d.Path)], "time": d.StartTime, "brakes": d.HardBrakes, "accels": d.HardAccelerations, "distance": d.Distance,"duration": d.Duration, "style": "average"})};
+        if (d.Distance < maxDistance && d.AverageMPG >= 20 && d.AverageMPG < 25) {
+     routeGood.push({"name": "Good MPG", "points": [polyline.decode(d.Path)], "time": d.StartTime, "brakes": d.HardBrakes, "accels": d.HardAccelerations, "distance": d.Distance,"duration": d.Duration, "style": "good"})};
+        if (d.Distance < maxDistance && d.AverageMPG >= 25) {
+     routeGreat.push({"name": "Great MPG", "points": [polyline.decode(d.Path)], "time": d.StartTime, "brakes": d.HardBrakes, "accels": d.HardAccelerations, "distance": d.Distance,"duration": d.Duration, "style": "great"})};
+ });
+L.mapbox.accessToken = 'pk.eyJ1IjoiY29vcGVybWFwcyIsImEiOiJjaWpuaWlybWwwMG1hdW9seHJvOTUzcXIzIn0.5omrYVw0lI9ZnmYOBSJC2g';
+var map = L.mapbox.map('map', 'mapbox.dark')
+    .setView([38.89399, -77.03659], 13);
+var layers = document.getElementById('menu-ui');
+
+addLayer(routeTerrible, "Terrible Fuel Efficiency", terribleMPG_options)
+addLayer(routeBad, "Bad Fuel Efficiency", badMPG_options)
+addLayer(routeFair, "Fair Fuel Efficiency", fairMPG_options);
+addLayer(routeGood, "Average Fuel Efficiency", goodMPG_options);
+addLayer(routeGreat, "Good Fuel Efficiency", greatMPG_options);
+
+
+function addLayer(layer, name, style) { 
+
+var layerGroup = L.geoJson().addTo(map);
+
+     layer.forEach(function (d) { 
+        var dayTime = new Date(Date.parse(d.time)).toString();
+        var day = dayTime.split(' ');
+        var averageMPH = Math.round(d.distance / (d.duration/60));
+        var hardBrakesText;
+        var hardAccelText;
+        if (d.brakes == 0) { hardBrakesText = ' '
+                                                } else if (d.brakes == 1) {
+                                                hardBrakesText = '<br \/>' + '<b>'+ d.brakes + '</b>' + ' Hard Brake' ;
+                                                } else {
+                                                hardBrakesText =  '<br \/>' + '<b>'+ d.brakes + '</b>' + ' Hard Brakes';};
+        if (d.accels == 0) { hardAccelText = ' ';
+                                                } else if (d.accels == 1) {
+                                                hardAccelText = '<br \/>' + '<b>'+ d.accels + '</b>' + ' Hard Accel' ;
+                                                } else { 
+                                                hardAccelText = '<br \/>' + '<b>'+ d.accels + '</b>' + ' Hard Accels';};
+        var content ='<h2>' + d.name + '<\/h2>' +
+        '<p>' + '<b>'+ day[0] + ' </b>' + ' ' + day[4] +'<br \/>' +
+        '<b>' + averageMPH + ' </b>' + 'MPH Average' + hardBrakesText + hardAccelText + '<\/p>' ;
+        var popStyle = {'background-color': style.color, 'className': style};
+
+        var layers = L.multiPolyline(d.points, style).bindPopup(content, {'className' :d.style}).addTo(layerGroup);
+
+        layers.on('mouseover', function (e) {
+            this.openPopup();
+            this.setStyle({
+                opacity: 1,
+                weight: 15
+            });
+            (map.getBounds())
+            // map.fitBounds(this.getBounds())
+
+        layers.on('mouseout', function (e) {
+            this.setStyle(style);
+        });
+
+
+     });
+    });
+
+    var link = document.createElement('a');
+        link.href = '#';
+        link.className = 'active';
+        link.innerHTML = name;
+        link.style.background = style.color;
+
+    link.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+
+        if (map.hasLayer(layerGroup)) {
+            map.removeLayer(layerGroup);
+            this.className = '';
+            this.style.background = "#f8f8f8";
+        } else {
+            map.addLayer(layerGroup);
+            this.className = 'active';
+            this.style.background = style.color;
+        }
+    };
+
+    layers.appendChild(link);
+}
+
+});
+</script>
+</body>
+</html>
